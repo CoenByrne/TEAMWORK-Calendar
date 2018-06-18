@@ -44,4 +44,8 @@ class Task(object):
     def save_to_db(self):
         Database.insert(COLLECTION, self.json())
 
+    @staticmethod
+    def get_tasks():
+        return Database.find(COLLECTION, {})
+
 
