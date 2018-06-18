@@ -3,13 +3,12 @@
 <head>
 	<meta charset="UTF-8">
 	<title></title>
-	<link rel='stylesheet' href='static/css/fullcalendar.css'/>
-	<link rel='stylesheet' href='static/css/externalEvents.css'/>
-	<script src='static/js/jquery.min.js'></script>
-	<script src='static/js/jquery-ui.min.js'></script>
-	<script src='static/js/moment.min.js'></script>
-	<script src='static/js/fullcalendar.js'></script>
-	
+	<link rel='stylesheet' href="{{ url_for('static', filename='/css/fullcalendar.css') }}"/>
+	<link rel='stylesheet' href="{{ url_for('static', filename='/css/externalEvents.css') }}"/>
+	<script src='{{ url_for("static", filename="js/jquery.min.js") }}'></script>
+	<script src='{{ url_for("static", filename="js/jquery-ui.min.js") }}'></script>
+	<script src='{{ url_for("static", filename="js/moment.min.js") }}'></script>
+	<script src='{{ url_for("static", filename="js/fullcalendar.js") }}'></script>
 </head>
 
 <script>
