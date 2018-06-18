@@ -44,4 +44,14 @@ class Task(object):
     def save_to_db(self):
         Database.insert(COLLECTION, self.json())
 
+    @staticmethod
+    def get_tasks():
+        return Database.find(COLLECTION, {})
 
+    @staticmethod
+    def get_task(_id):
+        return Database.find_one(COLLECTION, {"_id": _id})
+
+    @staticmethod
+    def get_by_firstname_and_lastname(firstname, lastname):
+        return Database.find(COLLECTION, {"creator_lastname": lastname, "creator_firstname": firstname})
