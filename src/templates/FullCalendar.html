@@ -35,7 +35,9 @@
 	
 		$('#calendar').fullCalendar({
 			weekends: false,
-			// defaultView: 'agendaFiveDay',
+			minTime: "07:00:00",
+			maxTime: "19:00:00",
+			defaultView: 'agendaWeek',
 			header: { 
 				left: 'prev,next,today', // buttons to change date view
 				center: 'title', // current
