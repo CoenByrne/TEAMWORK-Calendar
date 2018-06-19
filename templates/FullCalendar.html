@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<link rel='stylesheet' href="{{ url_for('static', filename='css/fullcalendar.min.css') }}"/>
+	<link rel='stylesheet' href="{{ url_for('static', filename='css/externalEvents.css') }}"/>
+	<script src='{{ url_for("static", filename="js/jquery.min.js") }}'></script>
+	<script src='{{ url_for("static", filename="js/jquery-ui.min.js") }}'></script>
+	<script src='{{ url_for("static", filename="js/moment.min.js") }}'></script>
+	<script src='{{ url_for("static", filename="js/fullcalendar.js") }}'></script>
+</head>
+<script>
+	$(function() {
+
+		// set function for events
+		$("#external-events .fc-event").each(function() {
+
+			// store data so the calendar knows to render an event upon drop
+			$(this).data("event", {
+				title: $.trim($(this).text()), // use the element's text as the event title
+				stick: true // specifying stick as true will cause the event to be permanently fixed to the calendar
+			});
+			// make the event draggable using jQuery UI
+			$(this).draggable({
+				zIndex: 999,
+				revert: true,  // will cause the event to go back to its original position after the drag
+				revertDuration: 0
+			});
+		});
+
+		// initialize the calendar
+		$('#calendar').fullCalendar({
+
+			lang: 'en-au',
+			weekends: false,
+			allDaySlot: false,
+			minTime: "07:00:00",
+			maxTime: "19:00:00",
+			slotDuration: '00:15:00',
+			slotLabelInterval: '01:00',
+			defaultView: 'agendaWeek',
+			header: {
+				left: 'prev,next,today', // buttons to change date view
+				center: 'title', // current
+				right: 'month,agendaWeek,agendaDay' // buttons for switching view type
+			},
+			editable: true,
+			droppable: true, // this allows things to be dropped onto the calendar
+            dragRevertDuration: 0,
+
+			drop: function() { 	// remove after drop function
+				$(this).remove();
+			},
+
+			eventDragStop: function( event, jsEvent, ui, view ) {
+                if(isEventOverDiv(jsEvent.clientX, jsEvent.clientY)) {
+                    $('#calendar').fullCalendar('removeEvents', event._id);
+                    var el = $( "<div class='fc-event'>" ).appendTo( '#external-events-listing' ).text( event.title );
+                    el.draggable({
+                      zIndex: 999,
+                      revert: true,
+                      revertDuration: 0
+                    });
+                    el.data('event', {
+						title: event.title,
+						id :event.id,
+						stick: true
+					});
+                }
+            }
+        });
+        var isEventOverDiv = function(x, y) {
+            var external_events = $( '#external-events' );
+            var offset = external_events.offset();
+            offset.right = external_events.width() + offset.left;
+            offset.bottom = external_events.height() + offset.top;
+            // Compare
+            if (x >= offset.left
+                && y >= offset.top
+                && x <= offset.right
+                && y <= offset .bottom) {
+					return true;
+				} // else
+            return false;
+        }
+	});
+</script>
+<body>	
+	<div id="calendar-container" >
+		<div id="calendar"></div>
+	</div>
+	
+	<div id='external-events'>
+		<div id="external-events-listing">
+			<p>
+				<strong>Events</strong>
+			</p>
+			{% if tasks %}
+				{% for task in tasks %}
+
+					<div class='fc-event'>{{ task["content"] }} <br>
+						<br>
+						start: {{ task["start_date"] }} <br>
+						due: {{ task["due_date"] }}
+					</div>
+				{% endfor %}
+			{% endif %}
+		</div>
+	</div>
+	<form method="get" action="{{ url_for('pull_data_from_api') }}">
+		<button>refresh</button>
+	</form>
+</body>
+</html>
