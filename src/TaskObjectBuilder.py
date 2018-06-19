@@ -11,20 +11,19 @@ class TaskObjectBuilder:
     Database.initialize()
 
     @staticmethod
-    def get_from_teamwork():
+    def get_from_teamwork(actn, name):
         http = urllib3.PoolManager()
         company = "wltc"
         key = "twp_VJ8lmPZG8cdnAmW1UEYPqbHPzldj"
-        action = "tasks.json"
+        action = actn
 
         url = "https://{0}.teamwork.com/{1}".format(company, action)
         headers = urllib3.util.make_headers(basic_auth=key + ":xxx")
         request = http.request('GET', url, headers=headers)
 
-        response = request.status
         data = request.data
         dic = Utils.bytes_to_json(data)
-        tasks = dic["todo-items"]
+        tasks = dic[name]
         return tasks
 
     @staticmethod
@@ -56,4 +55,29 @@ class TaskObjectBuilder:
     # append needs to be a static method.
 
     # TaskListHolder.append_task(tsk)
+
+    @staticmethod
+    def build_completed_list(tasks):
+        for task in tasks:
+            _id = task["id"]
+            start_date = task["startDate"]
+            due_date = task["dueDate"]
+            description = task["description"]
+            content = task["content"]
+            project_name = task["projectName"]
+            project_id = task["projectId"]
+            todo_list_name = ""
+            creator_lastname = task["creatorLastName"]
+            creator_firstname = ""
+            estimated_minutes = ""
+            has_dependencies = ""
+            priority = ""
+            progress = ""
+            last_changed_on = ""
+
+            tsk = Task(_id, start_date, due_date, description, content, project_name, project_id, todo_list_name,
+                       creator_lastname, creator_firstname, estimated_minutes, has_dependencies, priority, progress,
+                       last_changed_on)
+
+            TaskListHolder.append_task(tsk)
 

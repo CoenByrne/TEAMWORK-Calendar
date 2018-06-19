@@ -24,7 +24,7 @@ class Task(object):
 
     def json(self):
         return {
-            "_id": self.task_id,
+            "_id": int(self.task_id),
             "start_date": self.start_date,
             "due_date": self.due_date,
             "description": self.description,
@@ -45,7 +45,10 @@ class Task(object):
         Database.insert(COLLECTION, self.json())
 
     def update_in_db(self):
-        Database.update(COLLECTION, {"_id": self.task_id}, self.json())
+        Database.update(COLLECTION, {"_id": int(self.task_id)}, self.json())
+
+    def delete_from_db(self):
+        Database.remove(COLLECTION, {"_id": int(self.task_id)})
 
     @staticmethod
     def get_tasks():
@@ -53,7 +56,7 @@ class Task(object):
 
     @staticmethod
     def get_task(_id):
-        return Database.find_one(COLLECTION, {"_id": _id})
+        return Database.find_one(COLLECTION, {"_id": int(_id)})
 
     @staticmethod
     def get_by_firstname_and_lastname(firstname, lastname):

@@ -11,3 +11,4 @@ def bytes_to_json(data):
 
     dic = json.loads(my_json)
     return dic
+

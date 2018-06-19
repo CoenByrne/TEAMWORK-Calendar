@@ -60,14 +60,16 @@
 		<p>
 			<strong>Events</strong>
 		</p>
-		{% for task in tasks %}
+		{% if tasks %}
+			{% for task in tasks %}
 
-			<div class='fc-event'>{{ task["content"] }} <br>
-				<br>
-				start: {{ task["start_date"] }} <br>
-				due: {{ task["due_date"] }}
-			</div>
-		{% endfor %}
+				<div class='fc-event'>{{ task["content"] }} <br>
+					<br>
+					start: {{ task["start_date"] }} <br>
+					due: {{ task["due_date"] }}
+				</div>
+			{% endfor %}
+		{% endif %}
 
 	</div>
 	<form method="get" action="{{ url_for('pull_data_from_api') }}">
