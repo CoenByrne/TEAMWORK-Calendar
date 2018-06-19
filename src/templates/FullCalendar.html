@@ -70,6 +70,9 @@
 		{% endfor %}
 
 	</div>
+	<form method="get" action="{{ url_for('pull_data_from_api') }}">
+		<button>refresh</button>
+	</form>
 </body>
 
 </html>
