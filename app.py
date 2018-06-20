@@ -55,7 +55,7 @@ def post_request():
         return render_template("FullCalendar.html")
 
 
-@app.route('/external.JSON')
+@app.route('/external')
 def get_request():
     mongo_dic = Task.get_tasks()
     dic = {"data": []}

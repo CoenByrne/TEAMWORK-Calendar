@@ -64,7 +64,7 @@
         		$.getJSON("{{ url_for('get_request') }}", function(result) {
         			$.each(result, function(i, field){
 						$.each(field, function(x, task){
-							var ob = JSON.parse(task)
+							var ob = JSON.parse(task);
 							$("body").append(ob._id + " ");
 							$("body").append(ob.content + " ");
 						});
