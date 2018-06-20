@@ -33,3 +33,7 @@ html, body {
   max-width: 900px;
   margin: 20px auto;
 }
+
+.id{
+    display: none;
+}

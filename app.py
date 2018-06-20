@@ -1,4 +1,7 @@
-from flask import Flask, render_template
+import json
+from flask import Flask, render_template, request, jsonify
+from bson import json_util
+
 from src.TaskObjectBuilder import TaskObjectBuilder
 from src.common.Database import Database
 import src.TaskListHolder as List
@@ -44,6 +47,23 @@ def pull_data_from_api():
     return render_template("FullCalendar.html", tasks=tasks)
 
 
+@app.route('/retrieve_data', methods=["POST"])
+def post_request():
+    if request.method == "POST":
+        event_data = request.get_data('data')
+        print(event_data)
+        return render_template("FullCalendar.html")
+
+
+@app.route('/external.JSON')
+def get_request():
+    mongo_dic = Task.get_tasks()
+    dic = {"data": []}
+    for task in mongo_dic:
+        dic["data"].append(json_util.dumps(task))
+    return jsonify(dic)
+
+
 def pull_from_teamwork():
     List.clear_task_list()
     TaskObjectBuilder.build_list(TaskObjectBuilder.get_from_teamwork(T.tasks, T.tasks_name))
@@ -55,7 +75,6 @@ def pull_from_teamwork():
             # write an update method
             task.update_in_db()
         # elif DatabaseChecker.
-
 
 
 app.run(debug=True, port=4992)

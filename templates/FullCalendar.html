@@ -14,10 +14,11 @@
 
 		// set function for events
 		$("#external-events .fc-event").each(function() {
-
 			// store data so the calendar knows to render an event upon drop
 			$(this).data("event", {
-				title: $.trim($(this).text()), // use the element's text as the event title
+				title: $(this).text(), // use the element's text as the event title
+				start: "12:00",
+				duration: "01:00",
 				stick: true // specifying stick as true will cause the event to be permanently fixed to the calendar
 			});
 			// make the event draggable using jQuery UI
@@ -28,9 +29,10 @@
 			});
 		});
 
+		var eventsData = []
+
 		// initialize the calendar
 		$('#calendar').fullCalendar({
-
 			lang: 'en-au',
 			weekends: false,
 			allDaySlot: false,
@@ -48,7 +50,34 @@
 			droppable: true, // this allows things to be dropped onto the calendar
             dragRevertDuration: 0,
 
-			drop: function() { 	// remove after drop function
+			drop: function(date) { 	// remove after drop function
+				var fixed = new Date(date).getTime();
+				eventsData.push({
+            		name: $(this).text(),
+            		startDate: fixed,
+            		endDate: fixed
+        		});
+
+        		// this method gets data from the database and then parses each task into JSON (javascript object)
+        		// EventObjects can the be created here and stored in an Array
+        		// that will then be used to display the list of unassigned events
+        		$.getJSON("{{ url_for('get_request') }}", function(result) {
+        			$.each(result, function(i, field){
+						$.each(field, function(x, task){
+							var ob = JSON.parse(task)
+							$("body").append(ob._id + " ");
+							$("body").append(ob.content + " ");
+						});
+            		});
+        		});
+
+        		// sends data back after the task has been dropped onto the calender
+        		$.ajax({
+  					type : 'POST',
+  					url : "{{ url_for('post_request') }}",
+  					data : {"data": {"title": $(this).text(), "start": fixed}}
+				});
+
 				$(this).remove();
 			},
 
@@ -63,6 +92,8 @@
                     });
                     el.data('event', {
 						title: event.title,
+						start: "12:00",
+						duration: "01:00",
 						id :event.id,
 						stick: true
 					});
@@ -97,12 +128,7 @@
 			</p>
 			{% if tasks %}
 				{% for task in tasks %}
-
-					<div class='fc-event'>{{ task["content"] }} <br>
-						<br>
-						start: {{ task["start_date"] }} <br>
-						due: {{ task["due_date"] }}
-					</div>
+					<div class='fc-event' >{{ task["content"] }}</div>
 				{% endfor %}
 			{% endif %}
 		</div>
@@ -111,4 +137,4 @@
 		<button>refresh</button>
 	</form>
 </body>
-</html>
+<html>
