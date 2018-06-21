@@ -5,7 +5,10 @@ from src.Tasks.TaskConstants import COLLECTION
 class Task(object):
     def __init__(self, task_id, start_date, due_date, description, content, project_name, project_id, todo_list_name,
                  creator_lastname, creator_firstname, estimated_minutes, has_dependencies, priority, progress,
-                 last_changed_on):
+                 last_changed_on, responsible_party_ids, responsible_party_id, responsible_party_names,
+                 responsible_party_type, responsible_party_firstname, responsible_party_lastname,
+                 responsible_party_summary):
+
         self.task_id = task_id
         self.start_date = start_date
         self.due_date = due_date
@@ -21,6 +24,13 @@ class Task(object):
         self.priority = priority
         self.progress = progress
         self.last_changed_on = last_changed_on
+        self.responsible_party_ids = responsible_party_ids
+        self.responsible_party_id = responsible_party_id
+        self.responsible_party_names = responsible_party_names
+        self.responsible_party_type = responsible_party_type
+        self.responsible_party_firstname = responsible_party_firstname
+        self.responsible_party_lastname = responsible_party_lastname
+        self.responsible_party_summary = responsible_party_summary
 
     def json(self):
         return {
@@ -38,7 +48,14 @@ class Task(object):
             "has_dependencies": self.has_dependencies,
             "priority": self.priority,
             "progress": self.progress,
-            "last_changed_on": self.last_changed_on
+            "last_changed_on": self.last_changed_on,
+            "responsible_party_ids": self.responsible_party_ids,
+            "responsible_party_id": self.responsible_party_id,
+            "responsible_party_names": self.responsible_party_names,
+            "responsible_party_type": self.responsible_party_type,
+            "responsible_party_firstname": self.responsible_party_firstname,
+            "responsible_party_lastname": self.responsible_party_lastname,
+            "responsible_party_summary": self.responsible_party_summary
             }
 
     def save_to_db(self):
@@ -62,3 +79,10 @@ class Task(object):
     def get_by_firstname_and_lastname(firstname, lastname):
         return Database.find(COLLECTION, {"creator_lastname": lastname, "creator_firstname": firstname})
 
+    @staticmethod
+    def get_placed_tasks():
+        return Database.find("placed_tasks", {})  # this will be sorted by the responsible party and buissness (soon)
+
+    @staticmethod
+    def save_placed_task(task_json):
+        Database.insert("placed_tasks", task_json)
