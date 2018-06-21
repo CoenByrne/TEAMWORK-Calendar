@@ -51,7 +51,10 @@ def pull_data_from_api():
 def post_request():
     if request.method == "POST":
         event_data = request.get_data('data')
-        print(event_data)
+        event_json = Utils.bytes_to_json(event_data)
+        print(event_json)
+        # add to db.placed_tasks here
+        # delete from db.External_tasks using the id
         return render_template("FullCalendar.html")
 
 
@@ -75,6 +78,15 @@ def pull_from_teamwork():
             # write an update method
             task.update_in_db()
         # elif DatabaseChecker.
+
+
+@app.route('/placed')
+def get_placed_tasks():
+    mongo_dic = {}  # Task.get_completed_tasks
+    dic = {"data": []}
+    for task in mongo_dic:
+        dic["data"].append(json_util.dumps(task))
+    return jsonify(dic)
 
 
 app.run(debug=True, port=4992)

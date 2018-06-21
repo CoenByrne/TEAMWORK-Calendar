@@ -10,6 +10,41 @@
 	<script src='{{ url_for("static", filename="js/fullcalendar.js") }}'></script>
 </head>
 <script>
+
+	var externalEventsList = [];
+
+	// this method gets data from the database and then parses each task into JSON (javascript object)
+        		// EventObjects can the be created here and stored in an Array
+        		// that will then be used to display the list of unassigned events
+    $.getJSON("{{ url_for('get_request') }}", function(result) {
+        $.each(result, function(i, field){
+			$.each(field, function(x, task){
+				var ob = JSON.parse(task);
+					var event = {
+						id : ob._id,
+						title : ob.content,
+						start_date : ob.start_date,
+						due_date : ob.due_date,
+						estimated_minutes : ob.estimated_minutes
+					}
+				$('#external-events-listing').append("<div class='fc-event' id="+event.id+">"+ event.title +"</div>");
+            		var eventObject2 = {
+                		title: $.trim(event.title), // use the element's text as the event title
+                		id : event.id,
+                		start: "12:00",
+						duration: "01:00",
+                		stick: true
+            		};
+            		$('#'+event.id).data('event', eventObject2);
+            		$('#'+event.id).draggable({
+            			zIndex: 999,
+            			revert: true, // will cause the event to go back to its
+            			revertDuration: 0 //  original position after the drag
+        			});
+			});
+        });
+    });
+
 	$(function() {
 
 		// set function for events
@@ -19,7 +54,8 @@
 				title: $(this).text(), // use the element's text as the event title
 				start: "12:00",
 				duration: "01:00",
-				stick: true // specifying stick as true will cause the event to be permanently fixed to the calendar
+				stick: true, // specifying stick as true will cause the event to be permanently fixed to the calendar
+				id: event.id
 			});
 			// make the event draggable using jQuery UI
 			$(this).draggable({
@@ -58,26 +94,14 @@
             		endDate: fixed
         		});
 
-        		// this method gets data from the database and then parses each task into JSON (javascript object)
-        		// EventObjects can the be created here and stored in an Array
-        		// that will then be used to display the list of unassigned events
-        		$.getJSON("{{ url_for('get_request') }}", function(result) {
-        			$.each(result, function(i, field){
-						$.each(field, function(x, task){
-							var ob = JSON.parse(task);
-							$("body").append(ob._id + " ");
-							$("body").append(ob.content + " ");
-						});
-            		});
-        		});
-
         		// sends data back after the task has been dropped onto the calender
         		$.ajax({
   					type : 'POST',
   					url : "{{ url_for('post_request') }}",
-  					data : {"data": {"title": $(this).text(), "start": fixed}}
+  					contentType: "application/json",
+  					data : JSON.stringify({"id": $(this).attr('id'), "title": $(this).text(), "start": fixed})
 				});
-
+				$("body").append($(this));
 				$(this).remove();
 			},
 
@@ -91,10 +115,10 @@
                       revertDuration: 0
                     });
                     el.data('event', {
+                    	id: event.id,
 						title: event.title,
 						start: "12:00",
 						duration: "01:00",
-						id :event.id,
 						stick: true
 					});
                 }
@@ -126,11 +150,6 @@
 			<p>
 				<strong>Events</strong>
 			</p>
-			{% if tasks %}
-				{% for task in tasks %}
-					<div class='fc-event' >{{ task["content"] }}</div>
-				{% endfor %}
-			{% endif %}
 		</div>
 	</div>
 	<form method="get" action="{{ url_for('pull_data_from_api') }}">
