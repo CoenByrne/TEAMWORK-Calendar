@@ -45,6 +45,27 @@
         });
     });
 
+	var placedEventsArray = [];
+
+	// another getJSON method to grab placed tasks and add them to an Array, this will then be added into the
+	// FullCalender "events:" field.
+	// $.getJSON("{{ url_for('get_placed_tasks') }}", function(result){
+		// $.each(result, function(i, field){
+			// $.each(field, function(x, task){
+				// var ob = JSON.parse(task);
+					// var event = {
+						// id : ob._id,
+						// title : ob.content,
+						// start_date : ob.start_date,
+						// due_date : ob.due_date,
+						// estimated_minutes : ob.estimated_minutes
+					// }
+				// placedEventsArray.push(event);
+			// });
+		// });
+	// });
+
+
 	$(function() {
 
 		// set function for events
@@ -65,10 +86,15 @@
 			});
 		});
 
-		var eventsData = []
-
 		// initialize the calendar
 		$('#calendar').fullCalendar({
+			// eventSources: [
+				// {
+					// events: placedEventsArray
+					// options for different event sources can be specified here eg. color or textColor.
+				// {
+				// another events list can be inserted here.
+			// ]
 			lang: 'en-au',
 			weekends: false,
 			allDaySlot: false,
@@ -88,12 +114,6 @@
 
 			drop: function(date) { 	// remove after drop function
 				var fixed = new Date(date).getTime();
-				eventsData.push({
-            		name: $(this).text(),
-            		startDate: fixed,
-            		endDate: fixed
-        		});
-
         		// sends data back after the task has been dropped onto the calender
         		$.ajax({
   					type : 'POST',
@@ -101,7 +121,6 @@
   					contentType: "application/json",
   					data : JSON.stringify({"id": $(this).attr('id'), "title": $(this).text(), "start": fixed})
 				});
-				$("body").append($(this));
 				$(this).remove();
 			},
 

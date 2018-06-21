@@ -84,10 +84,19 @@ class TaskObjectBuilder:
             priority = ""
             progress = ""
             last_changed_on = ""
+            responsible_party_ids = ""
+            responsible_party_id = ""
+            responsible_party_names = ""
+            responsible_party_type = ""
+            responsible_party_firstname = ""
+            responsible_party_lastname = ""
+            responsible_party_summary = ""
 
             tsk = Task(_id, start_date, due_date, description, content, project_name, project_id, todo_list_name,
                        creator_lastname, creator_firstname, estimated_minutes, has_dependencies, priority, progress,
-                       last_changed_on)
+                       last_changed_on, responsible_party_ids, responsible_party_id, responsible_party_names,
+                       responsible_party_type, responsible_party_firstname, responsible_party_lastname,
+                       responsible_party_summary)
 
             TaskListHolder.append_task(tsk)
 

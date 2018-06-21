@@ -82,7 +82,7 @@ def pull_from_teamwork():
 
 @app.route('/placed')
 def get_placed_tasks():
-    mongo_dic = {}  # Task.get_completed_tasks
+    mongo_dic = Task.get_placed_tasks()
     dic = {"data": []}
     for task in mongo_dic:
         dic["data"].append(json_util.dumps(task))
@@ -90,6 +90,5 @@ def get_placed_tasks():
 
 
 app.run(debug=True, port=4992)
-
 
 
