@@ -134,13 +134,19 @@
 						duration: "01:00",
 						stick: true
 					});
+					$.ajax({
+  						type : 'POST',
+  						url : "{{ url_for('post_back_to_external_events') }}",
+  						contentType: "application/json",
+  						data : JSON.stringify({"id": event.id})
+					});
                 }
             }
         });
 
         setTimeout(function() {
   				$('#calendar').fullCalendar('addEventSource', placedEventsArray);
-			}, 2000);
+			}, 150);
 
         var isEventOverDiv = function(x, y) {
             var external_events = $( '#external-events' );

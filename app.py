@@ -54,7 +54,6 @@ def post_request():
     if request.method == "POST":
         event_data = request.get_data('data')
         event_json = Utils.bytes_to_json(event_data)
-        print(event_json["start"])
         TaskObjectBuilder.build_placed_task(Task.get_task(event_json["id"]), event_json["start"]).save_placed_task()
         Task.remove_task(event_json["id"])
         # add to db.placed_tasks here
@@ -62,6 +61,7 @@ def post_request():
         return render_template("FullCalendar.html")
 
 
+# the name of this method needs to be changed to get_external_events
 @app.route('/external')
 def get_request():
     mongo_dic = Task.get_tasks()
@@ -69,6 +69,25 @@ def get_request():
     for task in mongo_dic:
         dic["data"].append(json_util.dumps(task))
     return jsonify(dic)
+
+
+@app.route('/placed')
+def get_placed_tasks():
+    mongo_dic = PlacedTask.get_placed_tasks()
+    dic = {"data": []}
+    for task in mongo_dic:
+        dic["data"].append(json_util.dumps(task))
+    return jsonify(dic)
+
+
+@app.route('/post_back_to_external_events', methods=["POST"])
+def post_back_to_external_events():
+    if request.method == "POST":
+        event_data = request.get_data('data')
+        event_json = Utils.bytes_to_json(event_data)
+        TaskObjectBuilder.build_task(PlacedTask.get_task(event_json["id"])).save_to_db()
+        PlacedTask.remove_placed_task(event_json["id"])
+        return render_template("FullCalendar.html")
 
 
 def pull_from_teamwork():
@@ -83,15 +102,6 @@ def pull_from_teamwork():
             # write an update method
             task.update_in_db()
         # elif DatabaseChecker.
-
-
-@app.route('/placed')
-def get_placed_tasks():
-    mongo_dic = PlacedTask.get_placed_tasks()
-    dic = {"data": []}
-    for task in mongo_dic:
-        dic["data"].append(json_util.dumps(task))
-    return jsonify(dic)
 
 
 app.run(debug=True, port=4992)

@@ -152,3 +152,37 @@ class TaskObjectBuilder:
                          responsible_party_names, responsible_party_type, responsible_party_firstname,
                          responsible_party_lastname, responsible_party_summary)
         return tsk
+
+    @staticmethod
+    def build_task(task):
+        _id = task["_id"]
+        start_date = task["start_date"]
+        due_date = task["due_date"]
+        description = task["description"]
+        content = task["content"]
+        project_name = task["project_name"]
+        project_id = task["project_id"]
+        todo_list_name = task["todo_list_name"]
+        creator_lastname = task["creator_lastname"]
+        creator_firstname = task["creator_firstname"]
+        estimated_minutes = task["estimated_minutes"]
+        has_dependencies = task["has_dependencies"]
+        priority = task["priority"]
+        progress = task["progress"]
+        last_changed_on = task["last_changed_on"]
+
+        responsible_party_ids = task["responsible_party_ids"]
+        responsible_party_id = task["responsible_party_id"]
+        responsible_party_names = task["responsible_party_names"]
+        responsible_party_type = task["responsible_party_type"]
+        responsible_party_firstname = task["responsible_party_firstname"]
+        responsible_party_lastname = task["responsible_party_lastname"]
+        responsible_party_summary = task["responsible_party_summary"]
+
+        tsk = Task(_id, start_date, due_date, description, content, project_name, project_id, todo_list_name,
+                   creator_lastname, creator_firstname, estimated_minutes, has_dependencies, priority, progress,
+                   last_changed_on, responsible_party_ids, responsible_party_id, responsible_party_names,
+                   responsible_party_type, responsible_party_firstname, responsible_party_lastname,
+                   responsible_party_summary)
+
+        return tsk
