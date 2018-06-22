@@ -26,7 +26,7 @@
 						start_date : ob.start_date,
 						due_date : ob.due_date,
 						estimated_minutes : ob.estimated_minutes
-					}
+					};
 				$('#external-events-listing').append("<div class='fc-event' id="+event.id+">"+ event.title +"</div>");
             		var eventObject2 = {
                 		title: $.trim(event.title), // use the element's text as the event title
@@ -45,28 +45,28 @@
         });
     });
 
-	var placedEventsArray = [];
 
-	// another getJSON method to grab placed tasks and add them to an Array, this will then be added into the
-	// FullCalender "events:" field.
-	// $.getJSON("{{ url_for('get_placed_tasks') }}", function(result){
-		// $.each(result, function(i, field){
-			// $.each(field, function(x, task){
-				// var ob = JSON.parse(task);
-					// var event = {
-						// id : ob._id,
-						// title : ob.content,
-						// start_date : ob.start_date,
-						// due_date : ob.due_date,
-						// estimated_minutes : ob.estimated_minutes
-					// }
-				// placedEventsArray.push(event);
-			// });
-		// });
-	// });
 
 
 	$(function() {
+		var placedEventsArray = [];
+
+		// another getJSON method to grab placed tasks and add them to an Array, this will then be added into the
+		// FullCalender "events:" field.
+		$.getJSON("{{ url_for('get_placed_tasks') }}", function(result){
+			$.each(result, function(i, field){
+				$.each(field, function(x, task){
+					var ob = JSON.parse(task);
+					var event = {
+						id 		: ob._id,
+						title 	: ob.content,
+						start 	: ob.start,
+						all_day : false
+					};
+					placedEventsArray.push(event);
+				});
+			});
+		});
 
 		// set function for events
 		$("#external-events .fc-event").each(function() {
@@ -88,13 +88,7 @@
 
 		// initialize the calendar
 		$('#calendar').fullCalendar({
-			// eventSources: [
-				// {
-					// events: placedEventsArray
-					// options for different event sources can be specified here eg. color or textColor.
-				// {
-				// another events list can be inserted here.
-			// ]
+			// events: placedEventsArray,
 			lang: 'en-au',
 			weekends: false,
 			allDaySlot: false,
@@ -143,6 +137,11 @@
                 }
             }
         });
+
+        setTimeout(function() {
+  				$('#calendar').fullCalendar('addEventSource', placedEventsArray);
+			}, 2000);
+
         var isEventOverDiv = function(x, y) {
             var external_events = $( '#external-events' );
             var offset = external_events.offset();

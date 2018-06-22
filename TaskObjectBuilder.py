@@ -1,4 +1,6 @@
 import urllib3
+
+from src.Tasks.PlacedTask import PlacedTask
 from src.common import Utils
 from src.Tasks.Task import Task
 from src import TaskListHolder
@@ -44,20 +46,26 @@ class TaskObjectBuilder:
             priority = task["priority"]
             progress = task["progress"]
             last_changed_on = task["last-changed-on"]
+            if 'responsible-party-id' in task.keys():
+                responsible_party_ids = task["responsible-party-ids"]
+                responsible_party_id = task["responsible-party-id"]
+                responsible_party_names = task["responsible-party-names"]
+                responsible_party_type = task["responsible-party-type"]
+                responsible_party_firstname = task["responsible-party-firstname"]
+                responsible_party_lastname = task["responsible-party-lastname"]
+                responsible_party_summary = task["responsible-party-summary"]
 
-            responsible_party_ids = ["responsible-party-ids"]
-            responsible_party_id = ["responsible-party-id"]
-            responsible_party_names = ["responsible-party-names"]
-            responsible_party_type = ["responsible-party-type"]
-            responsible_party_firstname = ["responsible-party-firstname"]
-            responsible_party_lastname = ["responsible-party-lastname"]
-            responsible_party_summary = ["responsible-party-summary"]
+                tsk = Task(_id, start_date, due_date, description, content, project_name, project_id, todo_list_name,
+                           creator_lastname, creator_firstname, estimated_minutes, has_dependencies, priority, progress,
+                           last_changed_on, responsible_party_ids, responsible_party_id, responsible_party_names,
+                           responsible_party_type, responsible_party_firstname, responsible_party_lastname,
+                           responsible_party_summary)
+                TaskListHolder.append_task(tsk)
+                continue
 
             tsk = Task(_id, start_date, due_date, description, content, project_name, project_id, todo_list_name,
                        creator_lastname, creator_firstname, estimated_minutes, has_dependencies, priority, progress,
-                       last_changed_on, responsible_party_ids, responsible_party_id, responsible_party_names,
-                       responsible_party_type, responsible_party_firstname, responsible_party_lastname,
-                       responsible_party_summary)
+                       last_changed_on)
 
             TaskListHolder.append_task(tsk)
     # this is to be sent to a to the TaskListHolder
@@ -100,3 +108,47 @@ class TaskObjectBuilder:
 
             TaskListHolder.append_task(tsk)
 
+    @staticmethod
+    def build_placed_task_list(tasks):
+        task_list = []
+        for task in tasks:
+            placed_task = TaskObjectBuilder.build_placed_task(task)
+            task_list.append(placed_task)
+        return task_list
+
+    # method to turn an external task into a placed task
+    @staticmethod
+    def build_placed_task(task, start):
+        _id = task["_id"]
+        # variable to store the start time on the calender
+        calender_start_time = start
+
+        start_date = task["start_date"]
+        due_date = task["due_date"]
+        description = task["description"]
+        content = task["content"]
+        project_name = task["project_name"]
+        project_id = task["project_id"]
+        todo_list_name = task["todo_list_name"]
+        creator_lastname = task["creator_lastname"]
+        creator_firstname = task["creator_firstname"]
+        estimated_minutes = task["estimated_minutes"]
+        has_dependencies = task["has_dependencies"]
+        priority = task["priority"]
+        progress = task["progress"]
+        last_changed_on = task["last_changed_on"]
+
+        responsible_party_ids = task["responsible_party_ids"]
+        responsible_party_id = task["responsible_party_id"]
+        responsible_party_names = task["responsible_party_names"]
+        responsible_party_type = task["responsible_party_type"]
+        responsible_party_firstname = task["responsible_party_firstname"]
+        responsible_party_lastname = task["responsible_party_lastname"]
+        responsible_party_summary = task["responsible_party_summary"]
+
+        tsk = PlacedTask(_id, calender_start_time, start_date, due_date, description, content, project_name, project_id,
+                         todo_list_name, creator_lastname, creator_firstname, estimated_minutes, has_dependencies,
+                         priority, progress, last_changed_on, responsible_party_ids, responsible_party_id,
+                         responsible_party_names, responsible_party_type, responsible_party_firstname,
+                         responsible_party_lastname, responsible_party_summary)
+        return tsk
