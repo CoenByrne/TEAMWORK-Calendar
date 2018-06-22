@@ -12,6 +12,7 @@ class TaskObjectBuilder:
     # this will eventually go into app
     Database.initialize()
 
+    # need to write methods for scaling the program up, (support multiple company's) needs to be general.
     @staticmethod
     def get_from_teamwork(actn, name):
         http = urllib3.PoolManager()

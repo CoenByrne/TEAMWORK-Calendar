@@ -15,11 +15,14 @@ app = Flask(__name__)
 app.secret_key = "123"
 
 
+# the only method that should not change ever.
 @app.before_first_request
 def init_db():
     Database.initialize()
 
 
+# landing-page/login needs to be loaded before loading up the calender to allow session["company"] and session["user"]
+# to be filled in before reaching the calender.
 @app.route('/')
 def home():
     tasks = Task.get_tasks()
@@ -31,6 +34,8 @@ def home():
     return render_template("FullCalendar.html", tasks=tasks)
 
 
+# needs to be more general, eg. allowing pulling data from different companies. (this means editing the Task
+# class db queries)
 @app.route('/refresh')
 def pull_data_from_api():
     pull_from_teamwork()
@@ -43,12 +48,13 @@ def pull_data_from_api():
             task.delete_from_db()
         elif DatabaseChecker.does_placed_task_exist_in_db(task):
             PlacedTask.remove_placed_task(task.task_id)
-        else:
-            tasks = Task.get_tasks()
 
+    tasks = Task.get_tasks()
     return render_template("FullCalendar.html", tasks=tasks)
 
 
+# name needs changing, also method needs to be changed to support multiple company's/users as well as assigning the
+# current user the task unless its a multi-user task
 @app.route('/retrieve_data', methods=["POST"])
 def post_request():
     if request.method == "POST":
@@ -62,6 +68,7 @@ def post_request():
 
 
 # the name of this method needs to be changed to get_external_events
+# this needs to be scaled up to support only getting data relevant to the current user
 @app.route('/external')
 def get_request():
     mongo_dic = Task.get_tasks()
@@ -71,6 +78,7 @@ def get_request():
     return jsonify(dic)
 
 
+# get by company & user (include tasks for anyone)
 @app.route('/placed')
 def get_placed_tasks():
     mongo_dic = PlacedTask.get_placed_tasks()
@@ -80,6 +88,7 @@ def get_placed_tasks():
     return jsonify(dic)
 
 
+# remove user assigned to task (if not a multiUser task)
 @app.route('/post_back_to_external_events', methods=["POST"])
 def post_back_to_external_events():
     if request.method == "POST":
@@ -90,6 +99,7 @@ def post_back_to_external_events():
         return render_template("FullCalendar.html")
 
 
+# add functionality to pull data from more then one company's TEAMWORK site.
 def pull_from_teamwork():
     List.clear_task_list()
     TaskObjectBuilder.build_list(TaskObjectBuilder.get_from_teamwork(T.tasks, T.tasks_name))
