@@ -113,7 +113,7 @@
   					type : 'POST',
   					url : "{{ url_for('post_request') }}",
   					contentType: "application/json",
-  					data : JSON.stringify({"id": $(this).attr('id'), "title": $(this).text(), "start": fixed})
+  					data : JSON.stringify({"id": $(this).attr('id'), "start": fixed})
 				});
 				$(this).remove();
 			},
