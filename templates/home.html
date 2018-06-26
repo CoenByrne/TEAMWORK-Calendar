@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>home</h1>
+    <a href= "{{ url_for('company_login') }}">Login</a>
+    <a href= "{{ url_for('company_register') }}">Register</a>
+    {% if string %}
+    <h3>{{ string }}</h3>
+    {% endif %}
+{% endblock %}

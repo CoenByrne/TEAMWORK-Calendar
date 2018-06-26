@@ -2,8 +2,11 @@ import json
 from flask import Flask, render_template, request, jsonify
 from bson import json_util
 
+from src.Company import CompanyConstants
+from src.Company.Company import Company
 from src.TaskObjectBuilder import TaskObjectBuilder
 from src.Tasks.PlacedTask import PlacedTask
+from src.User import UserConstants
 from src.common.Database import Database
 import src.TaskListHolder as List
 from src.Tasks.Task import Task
@@ -21,10 +24,51 @@ def init_db():
     Database.initialize()
 
 
-# landing-page/login needs to be loaded before loading up the calender to allow session["company"] and session["user"]
-# to be filled in before reaching the calender.
 @app.route('/')
 def home():
+    return render_template("home.html")
+
+
+@app.route('/companyLogin', methods=['GET', 'POST'])
+def company_login():
+    if request.method == 'GET':
+        return render_template('login.html')
+    elif request.method == 'POST':
+        company_name = request.form['name']
+        company_password = request.form['password']
+        if Company.login_company(company_name, company_password):
+            company = Database.find_one(CompanyConstants.COLLECTION, {"company_name": company_name})
+            print(company)
+            users = Database.find(UserConstants.COLLECTION, {"company_id": str(company["_id"])})
+            user_names = []
+            for user_id in users:
+
+                print(user_id)
+                user_names.append(user_id["user_name"])
+            print(user_names)
+            return render_template("userPicker.html", user_names=user_names)
+        else:
+            return render_template("home.html", string="please use a valid login")
+
+
+@app.route('/companyRegister', methods=['GET', 'POST'])
+def company_register():
+    if request.method == 'GET':
+        return render_template('register.html')
+    elif request.method == 'POST':
+        company_name = request.form['name']
+        company_password = request.form['password']
+        company_teamwork_key = request.form['key']
+
+        string = Company.register_company(company_name, company_password, company_teamwork_key)
+
+        return render_template("home.html", string=string)
+
+
+# landing-page/login needs to be loaded before loading up the calender to allow session["company"] and session["user"]
+# to be filled in before reaching the calender.
+@app.route('/calendar')
+def calendar():
     tasks = Task.get_tasks()
     if tasks is None:
         pull_from_teamwork()

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Daily Planner</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"/>
+    <!-- always load my stylesheet after bootstrap ^ -->
+    <link rel="stylesheet" href="loginStyle.css"/>
+   	<script src='https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js'></script>
+
+</head>
+<body>
+	<div class="container">
+		<h2 class="text-center">Daily Planner</h2>
+	</div>
+	<div class="login-form">
+		<form action="{{ url_for('login_user') }}" method="post">
+			<div class="form-group company">
+				<input type="text" class="form-control form-rounded border-primary" placeholder="Company" required="required" id="company" name="company">
+			</div>
+			<div class="form-group">
+				<input type="password" class="form-control form-rounded border-primary" placeholder="Password" required="required" id="password" name="password">
+			</div>
+			<div class="clearfix">
+				<label class="pull-left checkbox-inline"><input type="checkbox"> Remember me</label>
+			</div>
+			<div class="form-group">
+				<button type="submit" class="btn btn-med btn-block btn-sample" id="submit-button">Submit</button>
+			</div>
+			<div class="clearfix fp">
+				<a href="#" class="pull-right">Forgot Password?</a>
+			</div>
+		</form>
+	<div class="reg-container">
+		<p class="text-center">Don't have an account?<br><a href="register.html">Register here!</a></p>
+	<div>
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+	
+</body>
+</html>
