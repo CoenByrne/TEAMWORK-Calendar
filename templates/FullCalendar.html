@@ -42,12 +42,53 @@
         });
     });
 
+    $.getJSON("{{ url_for('get_unplaced_anyone') }}", function(result) {
+        $.each(result, function(i, field){
+			$.each(field, function(x, task){
+				var ob = JSON.parse(task);
+				var event = {
+					id : ob._id,
+					title : ob.content,
+					description: ob.description,
+					start_date : ob.start_date,
+					due_date : ob.due_date,
+					estimated_minutes : ob.estimated_minutes,
+					start: "12:00",
+					duration: "01:00",
+                	stick: true
+				};
+				$('#external-events-listing').append("<div class='fc-event' id="+event.id+">"+ event.title +"</div>");
+            	$('#'+event.id).data('event', event);
+            	$('#'+event.id).draggable({
+            		zIndex: 999,
+            		revert: true, // will cause the event to go back to its
+            		revertDuration: 0 //  original position after the drag
+        		});
+			});
+        });
+    });
+
 	$(function() {
 		var placedEventsArray = [];
 
 		// another getJSON method to grab placed tasks and add them to an Array, this will then be added into the
 		// FullCalender "events:" field.
 		$.getJSON("{{ url_for('get_placed_tasks') }}", function(result){
+			$.each(result, function(i, field){
+				$.each(field, function(x, task){
+					var ob = JSON.parse(task);
+					var event = {
+						id 		: ob._id,
+						title 	: ob.content,
+						description: ob.description,
+						start 	: ob.start,
+						all_day : false
+					};
+					placedEventsArray.push(event);
+				});
+			});
+		});
+		$.getJSON("{{ url_for('get_placed_anyone') }}", function(result){
 			$.each(result, function(i, field){
 				$.each(field, function(x, task){
 					var ob = JSON.parse(task);
@@ -124,7 +165,7 @@
 
         setTimeout(function() {
   				$('#calendar').fullCalendar('addEventSource', placedEventsArray);
-			}, 150);
+			}, 500);
 
         var isEventOverDiv = function(x, y) {
             var external_events = $( '#external-events' );

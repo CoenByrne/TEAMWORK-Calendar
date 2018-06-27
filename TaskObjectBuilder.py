@@ -138,7 +138,7 @@ class TaskObjectBuilder:
 
     # method to turn an external task into a placed task
     @staticmethod
-    def build_placed_task(task, start):
+    def build_placed_task(task, start, placed_by_id):
         _id = task["_id"]
         company_id = task["company_id"]
         # variable to store the start time on the calender
@@ -166,12 +166,13 @@ class TaskObjectBuilder:
         responsible_party_firstname = task["responsible_party_firstname"]
         responsible_party_lastname = task["responsible_party_lastname"]
         responsible_party_summary = task["responsible_party_summary"]
+        placed_by = placed_by_id
 
         tsk = PlacedTask(_id, company_id, calender_start_time, start_date, due_date, description, content, project_name, project_id,
                          todo_list_name, creator_lastname, creator_firstname, estimated_minutes, has_dependencies,
                          priority, progress, last_changed_on, responsible_party_ids, responsible_party_id,
                          responsible_party_names, responsible_party_type, responsible_party_firstname,
-                         responsible_party_lastname, responsible_party_summary)
+                         responsible_party_lastname, responsible_party_summary, placed_by)
         return tsk
 
     @staticmethod

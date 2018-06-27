@@ -6,7 +6,7 @@ class PlacedTask(object):
                  creator_lastname, creator_firstname, estimated_minutes, has_dependencies, priority, progress,
                  last_changed_on, responsible_party_ids, responsible_party_id, responsible_party_names,
                  responsible_party_type, responsible_party_firstname, responsible_party_lastname,
-                 responsible_party_summary):
+                 responsible_party_summary, placed_by):
 
         self.task_id = task_id
         self.company_id = company_id
@@ -32,6 +32,7 @@ class PlacedTask(object):
         self.responsible_party_firstname = responsible_party_firstname
         self.responsible_party_lastname = responsible_party_lastname
         self.responsible_party_summary = responsible_party_summary
+        self.placed_by = placed_by
 
     def json(self):
         return {
@@ -58,7 +59,8 @@ class PlacedTask(object):
             "responsible_party_type": self.responsible_party_type,
             "responsible_party_firstname": self.responsible_party_firstname,
             "responsible_party_lastname": self.responsible_party_lastname,
-            "responsible_party_summary": self.responsible_party_summary
+            "responsible_party_summary": self.responsible_party_summary,
+            "placed_by": self.placed_by
             }
 
     def save_placed_task(self):

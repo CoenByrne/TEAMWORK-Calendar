@@ -14,28 +14,18 @@
 		<h2 class="text-center">User</h2>
 	</div>
 	<div class="login-form">
-		<select class="selectpicker">
-			{% if user_names %}
-				{% for user in user_names %}
-					<option>{{ user }}</option>
-				{% endfor %}
-			{% endif %}
-		</select>	
-		<form action="" method="post">
-			<div class="form-group">
-				<input type="password" class="form-control form-rounded border-primary" placeholder="Password" required="required" id="password" name="password">
-			</div>
-			<div class="clearfix">
-				<label class="pull-left checkbox-inline"><input type="checkbox"> Remember me</label>
-			</div>
+		<form action="{{ url_for('pick_user') }}" method="post">
+			<select name="pick_user" class="selectpicker">
+				{% if user_names %}
+					{% for user in user_names %}
+						<option>{{ user }}</option>
+					{% endfor %}
+				{% endif %}
+			</select>
 			<div class="form-group">
 				<button type="submit" class="btn btn-med btn-block btn-sample" id="submit-button">Submit</button>
 			</div>
-			<div class="clearfix fp">
-				<a href="#" class="pull-right">Forgot Password?</a>
-			</div>
 		</form>
-
 	</div>
 
 	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

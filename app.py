@@ -1,5 +1,5 @@
 import json
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session
 from bson import json_util
 
 from src.Company import CompanyConstants
@@ -7,6 +7,7 @@ from src.Company.Company import Company
 from src.TaskObjectBuilder import TaskObjectBuilder
 from src.Tasks.PlacedTask import PlacedTask
 from src.User import UserConstants
+from src.User.User import User
 from src.common.Database import Database
 import src.TaskListHolder as List
 from src.Tasks.Task import Task
@@ -38,14 +39,13 @@ def company_login():
         company_password = request.form['password']
         if Company.login_company(company_name, company_password):
             company = Database.find_one(CompanyConstants.COLLECTION, {"company_name": company_name})
-            print(company)
-            users = Database.find(UserConstants.COLLECTION, {"company_id": str(company["_id"])})
+
+            # give the company_id to the session to access later on
+            session["company_id"] = company["_id"]
+            users = Database.find(UserConstants.COLLECTION, {"company_id": company["_id"]})
             user_names = []
             for user_id in users:
-
-                print(user_id)
                 user_names.append(user_id["user_name"])
-            print(user_names)
             return render_template("userPicker.html", user_names=user_names)
         else:
             return render_template("home.html", string="please use a valid login")
@@ -65,8 +65,56 @@ def company_register():
         return render_template("home.html", string=string)
 
 
+@app.route('/pickUser', methods=["POST"])
+def pick_user():
+    if request.method == 'POST':
+        user_name = request.form.get("pick_user")
+        user = Database.find_one(UserConstants.COLLECTION, {"user_name": user_name})
+        user_id = user["_id"]
+        session["user_name"] = user_name
+        session["user_id"] = user_id
+        User.get_unplaced_tasks_anyone(session["company_id"])
+        User.get_placed_user_tasks(session["company_id"], user_id)
+        User.get_unplaced_user_tasks(session["company_id"], user_id)
+        string = "password set"
+        if user["password"] == "":
+            return render_template("createPassword.html")
+        return render_template("userLogin.html")
 # landing-page/login needs to be loaded before loading up the calender to allow session["company"] and session["user"]
 # to be filled in before reaching the calender.
+
+
+@app.route('/createPassword', methods=["POST"])
+def create_password():
+    if request.method == 'POST':
+        password = request.form['password']
+        password_second = request.form['password_repeated']
+        if password == password_second:
+            hashed_password = Utils.hash_password(password)
+            user = Database.find_one(UserConstants.COLLECTION, {"_id": session["user_id"]})
+            user["password"] = hashed_password
+            # update user in db
+            User.user_json_to_user_object(user).update_db()
+            return render_template("FullCalendar.html")
+        else:
+            error_message = "passwords don't match, please re-enter them"
+            return render_template('createPassword.html', error_message=error_message)
+
+
+@app.route('/enter_password', methods=["POST"])
+def enter_password():
+    if request.method == 'POST':
+        password = request.form["password"]
+        user_data = Database.find_one(UserConstants.COLLECTION, {"_id": session["user_id"]})
+        if user_data is not None:
+            if Utils.check_hashed_password(password, user_data['password']):
+                return render_template('FullCalendar.html')
+            else:
+                return render_template('userLogin.html', error_message="please enter the correct password")
+        else:
+            return render_template("home.html", string="something went wrong please try again")
+
+
 @app.route('/calendar')
 def calendar():
     tasks = Task.get_tasks()
@@ -92,9 +140,7 @@ def pull_data_from_api():
             task.delete_from_db()
         elif DatabaseChecker.does_placed_task_exist_in_db(task):
             PlacedTask.remove_placed_task(task.task_id)
-
-    tasks = Task.get_tasks()
-    return render_template("FullCalendar.html", tasks=tasks)
+    return render_template("FullCalendar.html")
 
 
 # name needs changing, also method needs to be changed to support multiple company's/users as well as assigning the
@@ -104,7 +150,9 @@ def post_request():
     if request.method == "POST":
         event_data = request.get_data('data')
         event_json = Utils.bytes_to_json(event_data)
-        TaskObjectBuilder.build_placed_task(Task.get_task(event_json["id"]), event_json["start"]).save_placed_task()
+        task = TaskObjectBuilder.build_placed_task(Task.get_task(event_json["id"]), event_json["start"],
+                                                   session["user_id"])
+        task.save_placed_task()
         Task.remove_task(event_json["id"])
         # add to db.placed_tasks here
         # delete from db.External_tasks using the id
@@ -115,7 +163,17 @@ def post_request():
 # this needs to be scaled up to support only getting data relevant to the current user
 @app.route('/external')
 def get_request():
-    mongo_dic = Task.get_tasks()
+    mongo_dic = User.get_unplaced_user_tasks(session["company_id"], session["user_id"])
+    dic = {"data": []}
+    for task in mongo_dic:
+        print(task)
+        dic["data"].append(json_util.dumps(task))
+    return jsonify(dic)
+
+
+@app.route('/external_anyone')
+def get_unplaced_anyone():
+    mongo_dic = User.get_unplaced_tasks_anyone(session["company_id"])
     dic = {"data": []}
     for task in mongo_dic:
         dic["data"].append(json_util.dumps(task))
@@ -125,10 +183,21 @@ def get_request():
 # get by company & user (include tasks for anyone)
 @app.route('/placed')
 def get_placed_tasks():
-    mongo_dic = PlacedTask.get_placed_tasks()
+    mongo_dic = User.get_placed_user_tasks(session["company_id"], session["user_id"])
     dic = {"data": []}
     for task in mongo_dic:
         dic["data"].append(json_util.dumps(task))
+    return jsonify(dic)
+
+
+# not yet implemented
+@app.route('/placed_anyone')
+def get_placed_anyone():
+    mongo_dic = User.get_placed_anyone_tasks(session["company_id"], session["user_id"])
+    dic = {"data": []}
+    for task in mongo_dic:
+        if task["placed_by"] == session["user_id"] and task["responsible_party_id"] == 0:
+            dic["data"].append(json_util.dumps(task))
     return jsonify(dic)
 
 
