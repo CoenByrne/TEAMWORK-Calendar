@@ -51,9 +51,9 @@ class Company:
                                                             CompanyConstants.people_name,
                                                             company_name, company_key)
         for person in people:
-            user = Database.find_one(UserConstants.COLLECTION, {"_id": person["id"]})
+            user = Database.find_one(UserConstants.COLLECTION, {"_id": int(person["id"])})
             if user is None:
-                usr = User(person["user-name"], person["id"], "", company_id)
+                usr = User(person["id"], person["user-name"], "", company_id)
                 usr.save_to_db()
 
     @staticmethod
