@@ -28,35 +28,14 @@
 					due_date : ob.due_date,
 					estimated_minutes : ob.estimated_minutes,
 					start: "12:00",
+					end: "12:30",
 					duration: "01:00",
                 	stick: true
 				};
-				$('#external-events-listing').append("<div class='fc-event' id="+event.id+">"+ event.title +"</div>");
-            	$('#'+event.id).data('event', event);
-            	$('#'+event.id).draggable({
-            		zIndex: 999,
-            		revert: true, // will cause the event to go back to its
-            		revertDuration: 0 //  original position after the drag
-        		});
-			});
-        });
-    });
 
-    $.getJSON("{{ url_for('get_unplaced_anyone') }}", function(result) {
-        $.each(result, function(i, field){
-			$.each(field, function(x, task){
-				var ob = JSON.parse(task);
-				var event = {
-					id : ob._id,
-					title : ob.content,
-					description: ob.description,
-					start_date : ob.start_date,
-					due_date : ob.due_date,
-					estimated_minutes : ob.estimated_minutes,
-					start: "12:00",
-					duration: "01:00",
-                	stick: true
-				};
+				var hours = Math.floor(event.estimated_minutes / 60);
+    			var minutes = event.estimated_minutes % 60;
+    			event.duration = hours.toString() + ":" + minutes.toString();
 				$('#external-events-listing').append("<div class='fc-event' id="+event.id+">"+ event.title +"</div>");
             	$('#'+event.id).data('event', event);
             	$('#'+event.id).draggable({
@@ -74,21 +53,6 @@
 		// another getJSON method to grab placed tasks and add them to an Array, this will then be added into the
 		// FullCalender "events:" field.
 		$.getJSON("{{ url_for('get_placed_tasks') }}", function(result){
-			$.each(result, function(i, field){
-				$.each(field, function(x, task){
-					var ob = JSON.parse(task);
-					var event = {
-						id 		: ob._id,
-						title 	: ob.content,
-						description: ob.description,
-						start 	: ob.start,
-						all_day : false
-					};
-					placedEventsArray.push(event);
-				});
-			});
-		});
-		$.getJSON("{{ url_for('get_placed_anyone') }}", function(result){
 			$.each(result, function(i, field){
 				$.each(field, function(x, task){
 					var ob = JSON.parse(task);
@@ -135,6 +99,28 @@
   					data : JSON.stringify({"id": $(this).data("event").id, "start": fixed})
 				});
 				$(this).remove();
+			},
+
+			eventDrop: function(event, delta){
+				// updates db with new start time
+				$.ajax({
+  					type : 'POST',
+  					url : "{{ url_for('update_task') }}",
+  					contentType: "application/json",
+  					data : JSON.stringify({"id": event.id, "start": event.start.format()})
+				});
+				alert(event.end);
+				alert(event.title + "'s delta = " + delta);
+			},
+
+			eventResize: function(event, delta){
+			    $.ajax({
+  					type : 'POST',
+  					url : "{{ url_for('update_task') }}",
+  					contentType: "application/json",
+  					data : JSON.stringify({"id": event.id, "start": event.start.format(), "end": event.end.format()})
+				});
+			    alert(event.end.format());
 			},
 
 			eventDragStop: function( event, jsEvent, ui, view ) {

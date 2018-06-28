@@ -63,6 +63,9 @@ class PlacedTask(object):
             "placed_by": self.placed_by
             }
 
+    def update_task(self):
+        Database.update("placed_tasks", {"_id": self.task_id}, self.json())
+
     def save_placed_task(self):
         Database.insert("placed_tasks", self.json())
 

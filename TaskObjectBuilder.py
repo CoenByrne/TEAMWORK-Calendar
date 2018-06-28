@@ -144,6 +144,9 @@ class TaskObjectBuilder:
         # variable to store the start time on the calender
         calender_start_time = start
 
+        # variable to store the task end
+        # calender_end_time = end
+
         start_date = task["start_date"]
         due_date = task["due_date"]
         description = task["description"]

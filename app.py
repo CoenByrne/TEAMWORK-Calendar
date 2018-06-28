@@ -42,6 +42,7 @@ def company_login():
 
             # give the company_id to the session to access later on
             session["company_id"] = company["_id"]
+            session["company_name"] = company_name
             users = Database.find(UserConstants.COLLECTION, {"company_id": company["_id"]})
             user_names = []
             for user_id in users:
@@ -76,7 +77,6 @@ def pick_user():
         User.get_unplaced_tasks_anyone(session["company_id"])
         User.get_placed_user_tasks(session["company_id"], user_id)
         User.get_unplaced_user_tasks(session["company_id"], user_id)
-        string = "password set"
         if user["password"] == "":
             return render_template("createPassword.html")
         return render_template("userLogin.html")
@@ -126,14 +126,15 @@ def calendar():
     return render_template("FullCalendar.html", tasks=tasks)
 
 
-# needs to be more general, eg. allowing pulling data from different companies. (this means editing the Task
-# class db queries)
 @app.route('/refresh')
 def pull_data_from_api():
     pull_from_teamwork()
-
+    company = Database.find_one(CompanyConstants.COLLECTION, {"_id": session["company_id"]})
     List.clear_task_list()
-    TaskObjectBuilder.build_completed_list(TaskObjectBuilder.get_from_teamwork(T.completed_tasks, T.completed_tasks_name))
+    TaskObjectBuilder.build_completed_list(TaskObjectBuilder.get_from_teamwork_scaled(T.completed_tasks,
+                                                                                      T.completed_tasks_name,
+                                                                                      session["company_name"],
+                                                                                      company["key"]))
     ts = List.task_list
     for task in ts:
         if DatabaseChecker.does_task_exist_in_db(task):
@@ -143,8 +144,8 @@ def pull_data_from_api():
     return render_template("FullCalendar.html")
 
 
-# name needs changing, also method needs to be changed to support multiple company's/users as well as assigning the
-# current user the task unless its a multi-user task
+# ----------------- these methods are specific to calendar ---------------
+
 @app.route('/retrieve_data', methods=["POST"])
 def post_request():
     if request.method == "POST":
@@ -159,23 +160,26 @@ def post_request():
         return render_template("FullCalendar.html")
 
 
-# the name of this method needs to be changed to get_external_events
-# this needs to be scaled up to support only getting data relevant to the current user
+@app.route('/update_task', methods=["POST"])
+def update_task():
+    if request.method == "POST":
+        event_data = request.get_data('data')
+        event_json = Utils.bytes_to_json(event_data)
+        print(event_json)
+        task = TaskObjectBuilder.build_placed_task(PlacedTask.get_task(event_json["id"]), event_json["start"],
+                                                   session["user_id"])
+        task.update_task()
+        return render_template("FullCalendar.html")
+
+
 @app.route('/external')
 def get_request():
     mongo_dic = User.get_unplaced_user_tasks(session["company_id"], session["user_id"])
     dic = {"data": []}
     for task in mongo_dic:
-        print(task)
         dic["data"].append(json_util.dumps(task))
-    return jsonify(dic)
-
-
-@app.route('/external_anyone')
-def get_unplaced_anyone():
-    mongo_dic = User.get_unplaced_tasks_anyone(session["company_id"])
-    dic = {"data": []}
-    for task in mongo_dic:
+    mongo_dic_anyone = User.get_unplaced_tasks_anyone(session["company_id"])
+    for task in mongo_dic_anyone:
         dic["data"].append(json_util.dumps(task))
     return jsonify(dic)
 
@@ -184,18 +188,12 @@ def get_unplaced_anyone():
 @app.route('/placed')
 def get_placed_tasks():
     mongo_dic = User.get_placed_user_tasks(session["company_id"], session["user_id"])
+
     dic = {"data": []}
     for task in mongo_dic:
         dic["data"].append(json_util.dumps(task))
-    return jsonify(dic)
-
-
-# not yet implemented
-@app.route('/placed_anyone')
-def get_placed_anyone():
-    mongo_dic = User.get_placed_anyone_tasks(session["company_id"], session["user_id"])
-    dic = {"data": []}
-    for task in mongo_dic:
+    mongo_dic_anyone = User.get_placed_anyone_tasks(session["company_id"], session["user_id"])
+    for task in mongo_dic_anyone:
         if task["placed_by"] == session["user_id"] and task["responsible_party_id"] == 0:
             dic["data"].append(json_util.dumps(task))
     return jsonify(dic)
