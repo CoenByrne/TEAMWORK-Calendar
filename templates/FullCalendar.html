@@ -28,8 +28,8 @@
 					due_date : ob.due_date,
 					estimated_minutes : ob.estimated_minutes,
 					start: "12:00",
-					end: "12:30",
 					duration: "01:00",
+					end: "00:00",
                 	stick: true
 				};
 
@@ -60,6 +60,7 @@
 						id 		: ob._id,
 						title 	: ob.content,
 						description: ob.description,
+						end     : ob.end,
 						start 	: ob.start,
 						all_day : false
 					};
@@ -92,12 +93,21 @@
 			drop: function(date) { 	// remove after drop function
 				var fixed = new Date(date).getTime();
         		// sends data back after the task has been dropped onto the calender
-        		$.ajax({
-  					type : 'POST',
-  					url : "{{ url_for('post_request') }}",
-  					contentType: "application/json",
-  					data : JSON.stringify({"id": $(this).data("event").id, "start": fixed})
-				});
+        		if ($(this).data("event").end != "00:00") {
+        		    $.ajax({
+  				    	type : 'POST',
+  				    	url : "{{ url_for('post_request') }}",
+  				    	contentType: "application/json",
+  				    	data : JSON.stringify({"id": $(this).data("event").id, "start": fixed, "end": $(this).data("event").end})
+				    });
+				} else {
+				    $.ajax({
+  				    	type : 'POST',
+  				    	url : "{{ url_for('post_request') }}",
+  				    	contentType: "application/json",
+  				    	data : JSON.stringify({"id": $(this).data("event").id, "start": fixed, "end": fixed})
+				    });
+				}
 				$(this).remove();
 			},
 
@@ -107,10 +117,8 @@
   					type : 'POST',
   					url : "{{ url_for('update_task') }}",
   					contentType: "application/json",
-  					data : JSON.stringify({"id": event.id, "start": event.start.format()})
+  					data : JSON.stringify({"id": event.id, "start": event.start.format(), "end": event.end})
 				});
-				alert(event.end);
-				alert(event.title + "'s delta = " + delta);
 			},
 
 			eventResize: function(event, delta){
@@ -120,7 +128,6 @@
   					contentType: "application/json",
   					data : JSON.stringify({"id": event.id, "start": event.start.format(), "end": event.end.format()})
 				});
-			    alert(event.end.format());
 			},
 
 			eventDragStop: function( event, jsEvent, ui, view ) {

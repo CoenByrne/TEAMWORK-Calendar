@@ -42,10 +42,31 @@ class Company:
             user_name = person["user-name"]
             _id = person["id"]
             pin = ""
-
-            # user = User(_id, user_name, pin, company_id)
             user_ids.append(_id)
         return user_ids
+
+    @staticmethod
+    def update_users(company_name, company_key, company_id):
+        people = TaskObjectBuilder.get_from_teamwork_scaled(CompanyConstants.people_action,
+                                                            CompanyConstants.people_name,
+                                                            company_name, company_key)
+        for person in people:
+            user = Database.find_one(UserConstants.COLLECTION, {"_id": person["id"]})
+            if user is None:
+                usr = User(person["user-name"], person["id"], "", company_id)
+                usr.save_to_db()
+
+    @staticmethod
+    def create_users(company_name, company_key, company_id):
+        people = TaskObjectBuilder.get_from_teamwork_scaled(CompanyConstants.people_action,
+                                                            CompanyConstants.people_name,
+                                                            company_name, company_key)
+        for person in people:
+            user_name = person["user-name"]
+            _id = person["id"]
+            pin = ""
+            user = User(_id, user_name, pin, company_id)
+            user.save_to_db()
 
     @staticmethod
     def get_users_from_db(company_id):
@@ -67,6 +88,7 @@ class Company:
             _id = account["companyid"]
             company = Company(_id, company_name, Utils.hash_password(company_password), key, people)
             company.save_to_db()
+            Company.create_users(company_name, company_data["key"], _id)
             return "company registered"
         else:
             return "invalid company name or API key"

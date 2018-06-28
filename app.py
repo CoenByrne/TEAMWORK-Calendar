@@ -43,6 +43,7 @@ def company_login():
             # give the company_id to the session to access later on
             session["company_id"] = company["_id"]
             session["company_name"] = company_name
+            Company.update_users(company_name, company["key"], session["company_id"])
             users = Database.find(UserConstants.COLLECTION, {"company_id": company["_id"]})
             user_names = []
             for user_id in users:
@@ -152,7 +153,7 @@ def post_request():
         event_data = request.get_data('data')
         event_json = Utils.bytes_to_json(event_data)
         task = TaskObjectBuilder.build_placed_task(Task.get_task(event_json["id"]), event_json["start"],
-                                                   session["user_id"])
+                                                   event_json["end"], session["user_id"])
         task.save_placed_task()
         Task.remove_task(event_json["id"])
         # add to db.placed_tasks here
@@ -167,7 +168,7 @@ def update_task():
         event_json = Utils.bytes_to_json(event_data)
         print(event_json)
         task = TaskObjectBuilder.build_placed_task(PlacedTask.get_task(event_json["id"]), event_json["start"],
-                                                   session["user_id"])
+                                                   event_json["end"], session["user_id"])
         task.update_task()
         return render_template("FullCalendar.html")
 

@@ -2,7 +2,7 @@ from src.common.Database import Database
 
 
 class PlacedTask(object):
-    def __init__(self, task_id, company_id, calender_start_time, start_date, due_date, description, content, project_name, project_id, todo_list_name,
+    def __init__(self, task_id, company_id, calender_start_time, calender_end_time, start_date, due_date, description, content, project_name, project_id, todo_list_name,
                  creator_lastname, creator_firstname, estimated_minutes, has_dependencies, priority, progress,
                  last_changed_on, responsible_party_ids, responsible_party_id, responsible_party_names,
                  responsible_party_type, responsible_party_firstname, responsible_party_lastname,
@@ -11,6 +11,7 @@ class PlacedTask(object):
         self.task_id = task_id
         self.company_id = company_id
         self.calender_start_time = calender_start_time
+        self.calender_end_time = calender_end_time
         self.start_date = start_date
         self.due_date = due_date
         self.description = description
@@ -39,6 +40,7 @@ class PlacedTask(object):
             "_id": int(self.task_id),
             "company_id": self.company_id,
             "start": self.calender_start_time,
+            "end": self.calender_end_time,
             "start_date": self.start_date,
             "due_date": self.due_date,
             "description": self.description,
