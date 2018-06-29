@@ -102,9 +102,10 @@ def create_password():
             return render_template('createPassword.html', error_message=error_message)
 
 
-@app.route('/enter_password', methods=["POST"])
+@app.route('/calendar', methods=["POST"])
 def enter_password():
     if request.method == 'POST':
+        pull_from_teamwork()
         password = request.form["password"]
         user_data = Database.find_one(UserConstants.COLLECTION, {"_id": session["user_id"]})
         if user_data is not None:
@@ -116,7 +117,7 @@ def enter_password():
             return render_template("home.html", string="something went wrong please try again")
 
 
-@app.route('/calendar')
+@app.route('/calendar_request')
 def calendar():
     tasks = Task.get_tasks()
     if tasks is None:
@@ -214,7 +215,10 @@ def post_back_to_external_events():
 # add functionality to pull data from more then one company's TEAMWORK site.
 def pull_from_teamwork():
     List.clear_task_list()
-    TaskObjectBuilder.build_list(TaskObjectBuilder.get_from_teamwork(T.tasks, T.tasks_name))
+    company = Database.find_one(CompanyConstants.COLLECTION, {"_id": session["company_id"]})
+
+    TaskObjectBuilder.build_list(TaskObjectBuilder.get_from_teamwork_scaled(T.tasks, T.tasks_name,
+                                                                            session["company_name"], company["key"]))
     tsks = List.task_list
     for task in tsks:
         if not DatabaseChecker.does_task_exist_in_db(task):

@@ -27,3 +27,11 @@ body {
 a {
     color: #395e60;
 }
+
+.fc-event{
+    text-align: center !important;
+}
+
+.eventTitle {
+    text-align: center !important;
+}

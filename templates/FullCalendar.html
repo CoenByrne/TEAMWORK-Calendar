@@ -36,7 +36,7 @@
 				var hours = Math.floor(event.estimated_minutes / 60);
     			var minutes = event.estimated_minutes % 60;
     			event.duration = hours.toString() + ":" + minutes.toString();
-				$('#external-events-listing').append("<div class='fc-event' id="+event.id+">"+ event.title +"</div>");
+				$('#external-events-listing').append("<div class='fc-event' id="+event.id+"><h4 class='eventTitle'><strong>"+ event.title +"</strong></h4>"+event.description+"</div>");
             	$('#'+event.id).data('event', event);
             	$('#'+event.id).draggable({
             		zIndex: 999,
@@ -188,8 +188,5 @@
 			</p>
 		</div>
 	</div>
-	<form method="get" action="{{ url_for('pull_data_from_api') }}">
-		<button>refresh</button>
-	</form>
 </body>
 <html>

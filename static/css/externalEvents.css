@@ -37,3 +37,7 @@ html, body {
 .id{
     display: none;
 }
+
+.fc-event {
+    text-align: center;
+}

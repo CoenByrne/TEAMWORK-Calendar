@@ -31,22 +31,6 @@ class TaskObjectBuilder:
         return tasks
 
     @staticmethod
-    def get_from_teamwork(actn, name):
-        http = urllib3.PoolManager()
-        company = "wltc"
-        key = "twp_VJ8lmPZG8cdnAmW1UEYPqbHPzldj"
-        action = actn
-
-        url = "https://{0}.teamwork.com/{1}".format(company, action)
-        headers = urllib3.util.make_headers(basic_auth=key + ":xxx")
-        request = http.request('GET', url, headers=headers)
-
-        data = request.data
-        dic = Utils.bytes_to_json(data)
-        tasks = dic[name]
-        return tasks
-
-    @staticmethod
     def build_list(tasks):
         for task in tasks:
             _id = task["id"]
