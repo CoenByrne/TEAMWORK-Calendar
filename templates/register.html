@@ -1,21 +1,27 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="login-form">
-    <form id="login-form register-form" action="{{ url_for('company_register') }}" method="post">
-        <h3 class="text-center">Register Company</h3><br>
-        <div class="form-group">
-            <input type="text" class="form-control" placeholder="Company Name" required="required" id="name" name="name">
-        </div>
-        <div class="form-group">
-            <input type="password" class="form-control" placeholder="Password" required="required" id="password" name="password">
-        </div>
-        <div class="form-group">
-            <input type="password" class="form-control" placeholder="TEAMWORK API KEY" required="required" id="key" name="key">
-        </div>
-        <div class="form-group">
-            <button type="submit" class="btn btn-lg btn-block btn-primary" id="submit-button">Sign Up</button>
-        </div>
-    </form>
-    <p class="text-center">Already have an account?<br><a href= "{{ url_for('company_login') }}">Log In Here!</a></p>
-</div>
+	<div class="container form-container">
+		<h2 class="text-center">Daily Planner</h2>
+	</div>
+    <div class="login-form">
+        <form action="{{ url_for('company_register') }}" method="post">
+            <h4 class="text-center">Register Company</h4>
+            <div class="form-group">
+                <input type="text" class="form-control form-rounded" placeholder="Company Name" required="required" id="name" name="name">
+            </div>
+            <div class="form-group">
+                <input type="password" class="form-control form-rounded" placeholder="Password" required="required" id="password" name="password">
+            </div>
+            <div class="form-group">
+                <input type="password" class="form-control form-rounded" placeholder="TEAMWORK API KEY" required="required" id="key" name="key">
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-med btn-block btn-sample" id="submit-button">Sign Up</button>
+            </div>
+        </form>
+		<div class="reg-container">
+			 <p class="text-center">Already have an account?<br><a href= "{{ url_for('company_login') }}">Log In Here!</a></p>
+		<div>
+    </div>
 {% endblock %}
+

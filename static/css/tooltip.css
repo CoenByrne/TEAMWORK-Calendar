@@ -1,0 +1,40 @@
+.tooltip {
+    position: relative;
+    display: block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    background-color: rgb(255, 163, 71);
+    color: black;
+    text-align: left;
+    border-radius: 6px;
+    padding-left: 10px;
+    position: absolute;
+    z-index: 1;
+    top: -5px;
+    left: 110%;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+
+.tooltip-title {
+    padding-right: 10px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.low {
+    background-color: green;
+}
+
+.medium {
+    background-color: rgb(255, 163, 71);
+}
+
+.high {
+    background-color: red;
+}

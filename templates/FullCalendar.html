@@ -4,6 +4,7 @@
 	<title></title>
 	<link rel='stylesheet' href="{{ url_for('static', filename='css/fullcalendar.min.css') }}"/>
 	<link rel='stylesheet' href="{{ url_for('static', filename='css/externalEvents.css') }}"/>
+    <link rel='stylesheet' href="{{ url_for('static', filename='css/tooltip.css') }}"/>
 	<script src='{{ url_for("static", filename="js/jquery.min.js") }}'></script>
 	<script src='{{ url_for("static", filename="js/jquery-ui.min.js") }}'></script>
 	<script src='{{ url_for("static", filename="js/moment.min.js") }}'></script>
@@ -27,6 +28,7 @@
 					start_date : ob.start_date,
 					due_date : ob.due_date,
 					estimated_minutes : ob.estimated_minutes,
+					priority : ob.priority,
 					start: "12:00",
 					duration: "01:00",
 					end: "00:00",
@@ -36,9 +38,13 @@
 				var hours = Math.floor(event.estimated_minutes / 60);
     			var minutes = event.estimated_minutes % 60;
     			event.duration = hours.toString() + ":" + minutes.toString();
-				$('#external-events-listing').append("<div class='fc-event' id="+event.id+"><h4 class='eventTitle'><strong>"+ event.title +"</strong></h4>"+event.description+"</div>");
+				$('#external-events-listing').append("<div class='fc-event tooltip " + event.priority + "' id="+event.id+"><h4 class='eventTitle'><strong>"+ event.title +"</strong></h4>"+event.description+"<span class='tooltiptext'><h3 class='tooltip-title'>" + event.title + "</h3><p>Start Date: " + moment(event.start_date).format('DD/MM/YYYY') + "</p><p>Due Date: " + moment(event.due_date).format('DD/MM/YYYY') + "</p></span></div>");
             	$('#'+event.id).data('event', event);
             	$('#'+event.id).draggable({
+            	    scroll: false,
+            	    appendTo: 'body',
+            	    containment: 'window',
+                    helper: 'clone',
             		zIndex: 999,
             		revert: true, // will cause the event to go back to its
             		revertDuration: 0 //  original position after the drag
@@ -60,6 +66,10 @@
 						id 		: ob._id,
 						title 	: ob.content,
 						description: ob.description,
+						estimated_minutes : ob.estimated_minutes,
+						priority : ob.priority,
+						start_date : ob.start_date,
+					    due_date : ob.due_date,
 						end     : ob.end,
 						start 	: ob.start,
 						all_day : false
@@ -133,19 +143,36 @@
 			eventDragStop: function( event, jsEvent, ui, view ) {
                 if(isEventOverDiv(jsEvent.clientX, jsEvent.clientY)) {
                     $('#calendar').fullCalendar('removeEvents', event._id);
-                    var el = $( "<div class='fc-event'>" ).appendTo( '#external-events-listing' ).text( event.title );
-                    el.draggable({
-                      zIndex: 999,
-                      revert: true,
-                      revertDuration: 0
+                    // var el = $( "<div class='fc-event'>" ).appendTo( '#external-events-listing' ).text( event.title );
+                    $('#external-events-listing').append("<div class='fc-event tooltip "+event.priority+"' id="+event.id+"><h4 class='eventTitle'><strong>"+ event.title +"</strong></h4>"+event.description+"<span class='tooltiptext'><h3 class='tooltip-title'>" + event.title + "</h3><p>Start Date: " + moment(event.start_date).format('DD/MM/YYYY') + "</p><p>Due Date: " + moment(event.due_date).format('DD/MM/YYYY') + "</p></span></div>");
+
+                    $("#"+event.id).draggable({
+                        scroll: false,
+            	        appendTo: 'body',
+            	        containment: 'window',
+                        helper: 'clone',
+                        zIndex: 999,
+                        revert: true,
+                        revertDuration: 0
                     });
-                    el.data('event', {
+
+                    $("#"+event.id).data('event', {
                     	id: event.id,
 						title: event.title,
+						description: event.description,
+						estimated_minutes : event.estimated_minutes,
+						priority : event.priority,
+						start_date : event.start_date,
+					    due_date : event.due_date,
 						start: "12:00",
+						end: "00:00",
 						duration: "01:00",
 						stick: true
 					});
+					var hours = Math.floor($("#"+event.id).data('event').estimated_minutes / 60);
+    			    var minutes = $("#"+event.id).data('event').estimated_minutes % 60;
+    			    $("#"+event.id).data('event').duration = hours.toString() + ":" + minutes.toString();
+
 					$.ajax({
   						type : 'POST',
   						url : "{{ url_for('post_back_to_external_events') }}",
@@ -183,9 +210,7 @@
 	
 	<div id='external-events'>
 		<div id="external-events-listing">
-			<p>
-				<strong>Events</strong>
-			</p>
+            <h2><strong>Events</strong></h2>
 		</div>
 	</div>
 </body>

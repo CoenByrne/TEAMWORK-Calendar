@@ -1,9 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>home</h1>
-    <a href= "{{ url_for('company_login') }}">Login</a>
-    <a href= "{{ url_for('company_register') }}">Register</a>
-    {% if string %}
-    <h3>{{ string }}</h3>
-    {% endif %}
+    <div class="container home-container">
+        <h1 class="text-center home-heading">DAILY PLANNER</h1>
+    </div>
+    <div class="container home-message-container" style="text-align:center;">
+        <p>This applications current role is displaying tasks from the project management software <strong>TEAMWORK</strong> in a user friendly and responsive environment.</p>
+        <br>
+        <p>Connection to other task management sites will be added in later updates, including google calender.</p>
+    </div>
+    <div class="container home-links-container">
+        <a href= "{{ url_for('company_login') }}" class="login-home">Login</a>
+        <a href= "{{ url_for('company_register') }}" class="register-home">Register</a>
+        {% if string %}
+        <h3>{{ string }}</h3>
+        {% endif %}
+    </div>
 {% endblock %}

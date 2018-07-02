@@ -16,6 +16,9 @@ html, body {
   border: 1px solid #ccc;
   background: #eee;
   margin: 20px auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  text-align: center;
 }
 
 #external-events .fc-event {
